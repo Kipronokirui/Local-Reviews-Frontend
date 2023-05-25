@@ -1,6 +1,7 @@
 import Layout from '../../components/Layout'
 import { Button, Card, Grid, Link, List, ListItem, ListItemText, makeStyles, Typography } from "@material-ui/core";
 import axios from 'axios'
+import AverageReview from '../../components/AverageReview'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -15,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-export default function BusinessPage({business}) {
+export default function BusinessPage({business, averageReview}) {
   const classes = useStyles()
 
   return (
@@ -25,6 +26,7 @@ export default function BusinessPage({business}) {
           <Typography variant='h2'>{business.name}</Typography>
           <Typography variant='h4'>{business.price_range}</Typography>
           <Typography variant='subtitle1'>Todo Review Component</Typography>
+          <AverageReview value={averageReview} />
 
           <div className={classes.addReview}>
             <Button variant='contained' color='primary'>Write a Review</Button>
@@ -64,11 +66,23 @@ export default function BusinessPage({business}) {
 export async function getServerSideProps({ query: {slug} }) {
   const { data } = await axios.get(`http://localhost:8000/businesses?slug=${slug}`)
 
-  console.log(data)
+  let avgReview = null
+
+  if (data && data.results && data.results[0].reviews) {
+    let totalReviewsStars = 0
+    for (let i = 0; i < data.results[0].reviews.length; i++) {
+      totalReviewsStars = totalReviewsStars + Number(data.results[0].reviews[i].stars)
+    }
+
+    const inverse = 1 / 2 //Rounding the average review to be .5
+
+    avgReview = Math.round((totalReviewsStars / data.results[0].reviews.length) / inverse) * inverse
+  }
 
   return {
     props: {
-      business: data.results[0] || null
+      business: data.results[0] || null,
+      averageReview: avgReview
     }
   }
 }

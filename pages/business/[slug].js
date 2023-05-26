@@ -1,7 +1,7 @@
 import Layout from '../../components/Layout'
+import AverageReview from '../../components/AverageReview'
 import { Button, Card, Grid, Link, List, ListItem, ListItemText, makeStyles, Typography } from "@material-ui/core";
 import axios from 'axios'
-import AverageReview from '../../components/AverageReview'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -25,7 +25,6 @@ export default function BusinessPage({business, averageReview}) {
         <Grid item xs={12} md={6}>
           <Typography variant='h2'>{business.name}</Typography>
           <Typography variant='h4'>{business.price_range}</Typography>
-          <Typography variant='subtitle1'>Todo Review Component</Typography>
           <AverageReview value={averageReview} />
 
           <div className={classes.addReview}>
@@ -74,7 +73,7 @@ export async function getServerSideProps({ query: {slug} }) {
       totalReviewsStars = totalReviewsStars + Number(data.results[0].reviews[i].stars)
     }
 
-    const inverse = 1 / 2 //Rounding the average review to be .5
+    const inverse = 1 / 2
 
     avgReview = Math.round((totalReviewsStars / data.results[0].reviews.length) / inverse) * inverse
   }
